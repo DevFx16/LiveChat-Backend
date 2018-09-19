@@ -8,4 +8,17 @@ export const UserRegistrar = celebrate({
         Contraseña: Joi.string().required(),
         Foto: Joi.string().required()
     })
-})
+});
+
+export const UserLogin = celebrate({
+    body: Joi.object().keys({
+        Email: Joi.string().required(),
+        Contraseña: Joi.string().required(),
+    })
+});
+
+export const UserToken = celebrate({
+    headers: Joi.object().keys({
+        token: Joi.string().required(),
+    }).unknown()
+}, { escapeHtml: false });
