@@ -1,4 +1,4 @@
-//Importamos las librerias del proyecto
+﻿//Importamos las librerias del proyecto
 import Firebase, { Auth } from './Firebase';
 
 //Funcion para registrar usuarios
@@ -7,7 +7,7 @@ export function Registrar(req, res) {
     Firebase.auth().createUser({
         displayName: req.body.Nombre,
         email: req.body.Email,
-        password: req.body.Contraseña,
+        password: req.body.Password,
         photoURL: req.body.Foto
     }).then(user => {
         res.status(200).send({ Mensaje: 'Ok' });
@@ -20,7 +20,7 @@ export function Registrar(req, res) {
 //Funcion Login 
 export function Login(req, res) {
     //Probando Login
-    Auth.auth().signInWithEmailAndPassword(req.body.Email, req.body.Contraseña).then(user => {
+    Auth.auth().signInWithEmailAndPassword(req.body.Email, req.body.Password).then(user => {
         //Obteniendo Token
         user.user.getIdToken(true).then(token => {
             //Retorno respuesta

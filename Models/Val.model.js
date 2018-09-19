@@ -1,11 +1,11 @@
-import { celebrate, Joi } from 'celebrate';
+﻿import { celebrate, Joi } from 'celebrate';
 
 //Con celebrate valido los modelos ensegudia
 export const UserRegistrar = celebrate({
     body: Joi.object().keys({
         Nombre: Joi.string().required(),
         Email: Joi.string().required(),
-        Contraseña: Joi.string().required(),
+        Password: Joi.string().required(),
         Foto: Joi.string().required()
     })
 });
@@ -13,7 +13,7 @@ export const UserRegistrar = celebrate({
 export const UserLogin = celebrate({
     body: Joi.object().keys({
         Email: Joi.string().required(),
-        Contraseña: Joi.string().required(),
+        Password: Joi.string().required(),
     })
 });
 
