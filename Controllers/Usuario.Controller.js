@@ -10,7 +10,7 @@ export function Registrar(req, res) {
         password: req.body.Contraseña,
         photoURL: req.body.Foto
     }).then(user => {
-        res.status(200).send({Mensaje: 'Ok'});
+        res.status(200).send({ Mensaje: 'Ok' });
     }).catch(err => {
         //Error
         res.status(406).send({ Error: err.message });
@@ -31,7 +31,7 @@ export function Login(req, res) {
             });
         }).catch(err => {
             //envio una respuesta
-            res.status(202).send({ Mensaje: err.message });
+            res.status(200).send({ Mensaje: 'Ok' });
         })
     }).catch(err => {
         //Error
@@ -44,7 +44,17 @@ export function VerficarToken(req, res) {
     //VERIFICO TOKEN
     VerficarTokenId(req.headers.token).then(user => {
         //SI NO HAY ERROR SIGUE LOGUEADO
-        res.status(200).send({exp: user.exp});
+        res.status(200).send({ exp: user.exp });
+    }).catch(err => {
+        //Error
+        res.status(406).send({ Error: err.message });
+    })
+}
+
+//PasswordRest
+export function PasswordReset(req, res) {
+    Auth.auth().sendPasswordResetEmail(req.body.Email).then(user => {
+        res.status(200).send({ Mensaje: 'Ok' });
     }).catch(err => {
         //Error
         res.status(406).send({ Error: err.message });
