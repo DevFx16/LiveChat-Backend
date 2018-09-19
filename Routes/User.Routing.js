@@ -1,5 +1,6 @@
 import { Registrar } from '../Controllers/Usuario.Controller';
+import { UserRegistrar } from '../Models/Val.model';
 
 export default (app) => {
-    app.get('/Registrar', Registrar);
+    app.post('/Registrar', UserRegistrar, Registrar);
 }
