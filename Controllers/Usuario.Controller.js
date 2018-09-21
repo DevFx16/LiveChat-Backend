@@ -28,6 +28,7 @@ export function Login(req, res) {
                 Token: token,
                 Nombre: user.user.displayName,
                 Foto: user.user.photoURL,
+                Id: user.user.uid
             });
         }).catch(err => {
             //envio una respuesta
@@ -44,10 +45,20 @@ export function VerficarToken(req, res) {
     //VERIFICO TOKEN
     VerficarTokenId(req.headers.token).then(user => {
         //SI NO HAY ERROR SIGUE LOGUEADO
-        res.status(200).send({ exp: user.exp });
+        res.status(200).send({Mensaje: 'Ok'});
     }).catch(err => {
         //Error
-        res.status(406).send({ Error: err.message });
+        if (err.message.includes('Firebase ID token has expired')) {
+            Auth.auth().signInWithEmailAndPassword(req.headers.email, req.headers.password).then(user => {
+                user.user.getIdToken().then(token => {
+                    res.status(202).send(token);
+                }).catch(err => {
+                    res.status(401).send({ Error: 'Acceso no autorizado' });
+                })
+            });
+        } else {
+            res.status(401).send({ Error: 'Acceso no autorizado' });
+        }
     })
 }
 

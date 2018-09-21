@@ -17,8 +17,16 @@ export const UserLogin = celebrate({
     })
 });
 
+export const Email = celebrate({
+    body: Joi.object().keys({
+        Email: Joi.string().required(),
+    })
+});
+
 export const UserToken = celebrate({
     headers: Joi.object().keys({
         token: Joi.string().required(),
+        email: Joi.string().required(),
+        password: Joi.string().required()
     }).unknown()
 }, { escapeHtml: false });
