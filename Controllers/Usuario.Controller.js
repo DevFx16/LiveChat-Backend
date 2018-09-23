@@ -45,7 +45,7 @@ export function VerficarToken(req, res) {
     //VERIFICO TOKEN
     VerficarTokenId(req.headers.token).then(user => {
         //SI NO HAY ERROR SIGUE LOGUEADO
-        res.status(200).send({Mensaje: 'Ok'});
+        res.status(200).send({ Mensaje: 'Ok' });
     }).catch(err => {
         //Error
         if (err.message.includes('Firebase ID token has expired')) {
@@ -69,6 +69,25 @@ export function PasswordReset(req, res) {
     }).catch(err => {
         //Error
         res.status(406).send({ Error: err.message });
+    })
+}
+
+//ListarUsuarios
+export function Listar(req, res) {
+    VerficarTokenId(req.headers.token).then(valid => {
+        Firebase.auth().listUsers(50, req.headers.page).then(List => {
+            var Users = [];
+            List.users.forEach(User => {
+                if (valid.uid !== User.toJSON().uid) {
+                    Users.push({ Nombre: User.toJSON().displayName, Foto: User.toJSON().photoURL, Id: User.toJSON().uid });
+                }
+            });
+            res.status(200).send({ Page: List.pageToken, Users: Users });
+        }).catch(error => {
+            res.status(406).send({ Error: err.message });
+        });
+    }).catch(err => {
+        res.status(401).send({ Error: 'Acceso no autorizado' });
     })
 }
 

@@ -30,3 +30,16 @@ export const UserToken = celebrate({
         password: Joi.string().required()
     }).unknown()
 }, { escapeHtml: false });
+
+export const Token = celebrate({
+    headers: Joi.object().keys({
+        token: Joi.string().required()
+    }).unknown()
+}, { escapeHtml: false });
+
+export const ListUser = celebrate({
+    headers: Joi.object().keys({
+        token: Joi.string().required(),
+        page: Joi.string()
+    }).unknown()
+}, { escapeHtml: false });
