@@ -91,6 +91,21 @@ export function Listar(req, res) {
     })
 }
 
+//Cambiar NOmbre
+export function CambiarNombre(req, res) {
+    VerficarTokenId(req.headers.token).then(valid => {
+        Firebase.auth().updateUser(req.headers.id, {displayName: req.body.Nombre}).then(value => {
+            return res.status(200).send({
+                Nombre: value.displayName,
+            });
+        }).catch(err => {
+            res.status(406).send({ Error: err.message });
+        })
+    }).catch(err => {
+        res.status(401).send({ Error: 'Acceso no autorizado' });
+    })
+}
+
 //FUNCION PARA VERIFICAR
 function VerficarTokenId(Token) {
     return Firebase.auth().verifyIdToken(Token);

@@ -43,3 +43,13 @@ export const ListUser = celebrate({
         page: Joi.string()
     }).unknown()
 }, { escapeHtml: false });
+
+export const UserName = celebrate({
+    headers: Joi.object().keys({
+        token: Joi.string().required(),
+        id: Joi.string().required()
+    }).unknown(),
+    body: Joi.object().keys({
+        Nombre: Joi.string().required()
+    })
+}, { escapeHtml: false });
