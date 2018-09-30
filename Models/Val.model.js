@@ -44,6 +44,12 @@ export const ListUser = celebrate({
     }).unknown()
 }, { escapeHtml: false });
 
+export const Archivo = celebrate({
+    headers: Joi.object().keys({
+        token: Joi.string().required()
+    }).unknown()
+}, { escapeHtml: false });
+
 export const UserName = celebrate({
     headers: Joi.object().keys({
         token: Joi.string().required(),

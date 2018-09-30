@@ -1,5 +1,5 @@
 ﻿//Importamos las librerias del proyecto
-import Firebase, { Auth } from './Firebase';
+import Firebase, { Auth, Archivos } from './Firebase';
 
 //Funcion para registrar usuarios
 export function Registrar(req, res) {
@@ -94,16 +94,36 @@ export function Listar(req, res) {
 //Cambiar NOmbre
 export function CambiarNombre(req, res) {
     VerficarTokenId(req.headers.token).then(valid => {
-        Firebase.auth().updateUser(req.headers.id, {displayName: req.body.Nombre}).then(value => {
+        Firebase.auth().updateUser(req.headers.id, { displayName: req.body.Nombre }).then(value => {
             return res.status(200).send({
                 Nombre: value.displayName,
             });
         }).catch(err => {
-            res.status(406).send({ Error: err.message });
+            return res.status(406).send({ Error: err.message });
         })
     }).catch(err => {
-        res.status(401).send({ Error: 'Acceso no autorizado' });
+        return res.status(401).send({ Error: 'Acceso no autorizado' });
     })
+}
+
+export function SubirFoto(req, res) {
+    if (!req.files.Archivo) {
+        return res.status(406).send({ Error: 'Archivo no subido' });
+    } else {
+        if (req.files.Archivo.mimetype.includes('image')) {
+            VerficarTokenId(req.headers.token).then(valid => {
+                Archivos.file(valid.uid).save(req.files.Archivo).then(value => {
+                    return res.status(200).send(value); 
+                }).catch(err => {
+                    return res.status(406).send((req.files.Archivo));
+                })
+            }).catch(err => {
+                return res.status(401).send({ Error: 'Acceso no autorizado' });
+            })
+        } else {
+            return res.status(406).send({ Error: 'Archivo no es una imagen' });
+        }
+    }
 }
 
 //FUNCION PARA VERIFICAR

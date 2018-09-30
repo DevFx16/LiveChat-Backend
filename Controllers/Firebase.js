@@ -10,5 +10,6 @@ admin.initializeApp({ credential: admin.credential.cert(Admin) });
 firebase.initializeApp(Cred);
 
 export const Auth = firebase;
+export const Archivos = admin.storage().bucket(Cred.storageBucket);
 export default admin;
 
