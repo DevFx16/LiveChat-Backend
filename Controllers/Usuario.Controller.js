@@ -94,7 +94,7 @@ export function Listar(req, res) {
 //Cambiar NOmbre
 export function CambiarNombre(req, res) {
     VerficarTokenId(req.headers.token).then(valid => {
-        Firebase.auth().updateUser(req.headers.id, { displayName: req.body.Nombre }).then(value => {
+        Firebase.auth().updateUser(valid.uid, { displayName: req.body.Nombre }).then(value => {
             return res.status(200).send({
                 Nombre: value.displayName,
             });
