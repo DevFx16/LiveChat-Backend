@@ -10,10 +10,10 @@ export function Registrar(req, res) {
         password: req.body.Password,
         photoURL: req.body.Foto
     }).then(user => {
-        res.status(200).send({ Mensaje: 'Ok' });
+        return res.status(200).send({ Mensaje: 'Ok' });
     }).catch(err => {
         //Error
-        res.status(406).send({ Error: err.message });
+        return res.status(406).send({ Error: err.message });
     })
 }
 
@@ -23,6 +23,7 @@ export function Login(req, res) {
     Auth.auth().signInWithEmailAndPassword(req.body.Email, req.body.Password).then(user => {
         //Obteniendo Token
         user.user.getIdToken(true).then(token => {
+            user.user.sendEmailVerification();
             //Retorno respuesta
             return res.status(200).send({
                 Token: token,
@@ -32,11 +33,11 @@ export function Login(req, res) {
             });
         }).catch(err => {
             //envio una respuesta
-            res.status(200).send({ Mensaje: 'Ok' });
+            return res.status(200).send({ Mensaje: 'Ok' });
         })
     }).catch(err => {
         //Error
-        res.status(406).send({ Error: err.message });
+        return res.status(406).send({ Error: err.message });
     })
 }
 
@@ -45,19 +46,24 @@ export function VerficarToken(req, res) {
     //VERIFICO TOKEN
     VerficarTokenId(req.headers.token).then(user => {
         //SI NO HAY ERROR SIGUE LOGUEADO
-        res.status(200).send({ Mensaje: 'Ok' });
+        Firebase.auth().getUser(user.uid).then(user1 => {
+            return res.status(200).send({ Nombre: user1.displayName, Foto: user1.photoURL, Token: req.headers.token });
+        }).catch(err => {
+            return res.status(203).send({ Mensaje: 'Ok' });
+        })
+
     }).catch(err => {
         //Error
         if (err.message.includes('Firebase ID token has expired')) {
             Auth.auth().signInWithEmailAndPassword(req.headers.email, req.headers.password).then(user => {
                 user.user.getIdToken().then(token => {
-                    res.status(202).send(token);
+                    return res.status(202).send({ Nombre: user.user.displayName, Foto: user.user.photoURL, Token: token });
                 }).catch(err => {
-                    res.status(401).send({ Error: 'Acceso no autorizado' });
+                    return res.status(401).send({ Error: 'Acceso no autorizado' });
                 })
             });
         } else {
-            res.status(401).send({ Error: 'Acceso no autorizado' });
+            return res.status(401).send({ Error: 'Acceso no autorizado' });
         }
     })
 }
@@ -65,10 +71,10 @@ export function VerficarToken(req, res) {
 //PasswordRest
 export function PasswordReset(req, res) {
     Auth.auth().sendPasswordResetEmail(req.body.Email).then(user => {
-        res.status(200).send({ Mensaje: 'Ok' });
+        return res.status(200).send({ Mensaje: 'Ok' });
     }).catch(err => {
         //Error
-        res.status(406).send({ Error: err.message });
+        return res.status(406).send({ Error: err.message });
     })
 }
 
@@ -82,12 +88,12 @@ export function Listar(req, res) {
                     Users.push({ Nombre: User.toJSON().displayName, Foto: User.toJSON().photoURL, Id: User.toJSON().uid });
                 }
             });
-            res.status(200).send({ Page: List.pageToken, Users: Users });
+            return res.status(200).send({ Page: List.pageToken, Users: Users });
         }).catch(error => {
-            res.status(406).send({ Error: err.message });
+            return res.status(406).send({ Error: err.message });
         });
     }).catch(err => {
-        res.status(401).send({ Error: 'Acceso no autorizado' });
+        return res.status(401).send({ Error: 'Acceso no autorizado' });
     })
 }
 
@@ -95,7 +101,28 @@ export function Listar(req, res) {
 export function CambiarNombre(req, res) {
     VerficarTokenId(req.headers.token).then(valid => {
         Firebase.auth().updateUser(valid.uid, { displayName: req.body.Nombre }).then(value => {
-            return res.status(200).send(value.displayName);
+            return res.status(200).send({ Nombre: value.displayName });
+        }).catch(err => {
+            return res.status(406).send({ Error: err.message });
+        });
+    }).catch(err => {
+        return res.status(401).send({ Error: 'Acceso no autorizado' });
+    });
+}
+
+//logout
+export function Logout(req, res) {
+    VerficarTokenId(req.headers.token).then(valid => {
+        Firebase.auth().to
+        return res.status(200).send({ Error: 'Acceso no autorizado' });
+    });
+}
+
+//Borrar Cuenta
+export function BorrarCuenta(req, res) {
+    VerficarTokenId(req.headers.token).then(valid => {
+        Firebase.auth().deleteUser(valid.uid).then(user => {
+            return res.status(200).send({ Mensaje: 'Ok' });
         }).catch(err => {
             return res.status(406).send({ Error: err.message });
         })
@@ -111,7 +138,7 @@ export function SubirFoto(req, res) {
         if (req.files.Archivo.mimetype.includes('image')) {
             VerficarTokenId(req.headers.token).then(valid => {
                 Archivos.file(valid.uid).save(req.files.Archivo).then(value => {
-                    return res.status(200).send(value); 
+                    return res.status(200).send(value);
                 }).catch(err => {
                     return res.status(406).send((req.files.Archivo));
                 })
