@@ -114,6 +114,17 @@ export function CambiarNombre(req, res) {
 export function BorrarCuenta(req, res) {
     VerficarTokenId(req.headers.token).then(valid => {
         Firebase.auth().deleteUser(valid.uid).then(user => {
+            Archivos.file(valid.uid).exists().then(ex => {
+                if (ex) {
+                    Archivos.file(valid.uid).delete().then(() => {
+                        return res.status(200).send({ Mensaje: 'Ok' });
+                    }).catch(err => {
+                        return res.status(202).send({ Mensaje: 'Ok' });
+                    })
+                }
+            }).catch(err => {
+                return res.status(202).send({ Mensaje: 'Ok' });
+            })
             return res.status(200).send({ Mensaje: 'Ok' });
         }).catch(err => {
             return res.status(406).send({ Error: err.message });
