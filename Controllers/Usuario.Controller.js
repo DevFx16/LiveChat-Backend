@@ -97,7 +97,7 @@ export function Listar(req, res) {
     })
 }
 
-//Cambiar NOmbre
+//Cambiar Nombre
 export function CambiarNombre(req, res) {
     VerficarTokenId(req.headers.token).then(valid => {
         Firebase.auth().updateUser(valid.uid, { displayName: req.body.Nombre }).then(value => {
@@ -107,14 +107,6 @@ export function CambiarNombre(req, res) {
         });
     }).catch(err => {
         return res.status(401).send({ Error: 'Acceso no autorizado' });
-    });
-}
-
-//logout
-export function Logout(req, res) {
-    VerficarTokenId(req.headers.token).then(valid => {
-        Firebase.auth().to
-        return res.status(200).send({ Error: 'Acceso no autorizado' });
     });
 }
 
@@ -131,17 +123,23 @@ export function BorrarCuenta(req, res) {
     })
 }
 
+//Funcion para subir foto
 export function SubirFoto(req, res) {
     if (!req.files.Archivo) {
         return res.status(406).send({ Error: 'Archivo no subido' });
     } else {
         if (req.files.Archivo.mimetype.includes('image')) {
             VerficarTokenId(req.headers.token).then(valid => {
-                Archivos.file(valid.uid).save(req.files.Archivo).then(value => {
-                    return res.status(200).send(value);
+                Archivos.file(valid.uid).save(req.files.Archivo.data, { metadata: { contentType: req.files.Archivo.mimetype }, contentType: req.files.Archivo.mimetype, public: true }).then(value => {
+                    Archivos.file(valid.uid).get().then(url => {
+                        Firebase.auth().updateUser(valid.uid, { photoURL: url['1'].mediaLink });
+                        return res.status(200).send({ Url: url['1'].mediaLink });
+                    }).catch(err => {
+                        return res.status(202).send({ Mensaje: 'Ok' });
+                    })
                 }).catch(err => {
-                    return res.status(406).send((req.files.Archivo));
-                })
+                    return res.status(406).send(req.files.Archivo);
+                });
             }).catch(err => {
                 return res.status(401).send({ Error: 'Acceso no autorizado' });
             })
